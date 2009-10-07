@@ -1,4 +1,4 @@
-package com.fluidinfo.fom.tests;
+package com.fluidinfo.fom;
 
 import static org.junit.Assert.*;
 
@@ -6,8 +6,7 @@ import java.io.IOException;
 import org.junit.*;
 import org.json.JSONException;
 import com.fluidinfo.*;
-import com.fluidinfo.fom.*;
-import com.fluidinfo.tests.TestUtils;
+import com.fluidinfo.utils.Policy;
 import com.fluidinfo.utils.StringUtil;
 
 import java.util.UUID;
@@ -110,4 +109,48 @@ public class TestTag extends Tag {
 		// test the tag doesn't exist anymore
 		assertEquals(false, TestUtils.contains(testNamespace.getTagNames(), newName));
 	}
+	
+	@Test
+    public void testGetSetTagPermission() throws Exception {
+        // Lets create a new tag underneath the user's default root namespace and 
+        // play with the permissions on that
+        Namespace n = new Namespace(this.fdb, "", this.fdb.getUsername());
+        n.getItem();
+        String newName = UUID.randomUUID().toString();
+        Tag newTag = n.createTag(newName, "Created for the purposes of testing", false);
+        // Lets set a strange permission on the tag so we know what we're checking when 
+        // we get it back
+        Permission p = new Permission(Policy.OPEN, new String[]{"fluiddb"});
+        newTag.setTagPermission(Tag.TagActions.UPDATE, p);
+        
+        // OK... lets try getting the newly altered permission back
+        Permission checkP = newTag.getTagPermission(Tag.TagActions.UPDATE);
+        assertEquals(p.GetPolicy(), checkP.GetPolicy());
+        assertEquals(p.GetExceptions()[0], checkP.GetExceptions()[0]);
+        
+        // Housekeeping to clean up after ourselves...
+        newTag.delete();
+    }
+	
+	@Test
+    public void testGetSetTagValuePermission() throws Exception {
+	    // Lets create a new tag underneath the user's default root namespace and 
+        // play with the permissions on that
+        Namespace n = new Namespace(this.fdb, "", this.fdb.getUsername());
+        n.getItem();
+        String newName = UUID.randomUUID().toString();
+        Tag newTag = n.createTag(newName, "Created for the purposes of testing", false);
+        // Lets set a strange permission on the tag so we know what we're checking when 
+        // we get it back
+        Permission p = new Permission(Policy.OPEN, new String[]{"fluiddb"});
+        newTag.setTagValuePermission(Tag.TagValueActions.CREATE, p);
+        
+        // OK... lets try getting the newly altered permission back
+        Permission checkP = newTag.getTagValuePermission(Tag.TagValueActions.CREATE);
+        assertEquals(p.GetPolicy(), checkP.GetPolicy());
+        assertEquals(p.GetExceptions()[0], checkP.GetExceptions()[0]);
+        
+        // Housekeeping to clean up after ourselves...
+        newTag.delete();
+    }
 }

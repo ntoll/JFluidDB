@@ -5,22 +5,27 @@ See the AUTHORS file for contributors.
 
 See the TODO file for the next things to be implemented.
 
-Unit tests (using jUnit http://www.junit.org/) can be found in the test directories under 
-src/com/fluidinfo/
+Unit tests (using jUnit http://www.junit.org/) can be found in the test directories under:
+
+tests/src/com/fluidinfo/
+
+Test coverage is currently 92.4% (and getting better all the time).
 
 To be able to run the unit tests you need to provide some valid credentials for the sandbox instance
 of FluidDB. You can supply these by putting a credentials.json file in your home directory - the
 test fixture will attempt to read this file and use the username and password defined therein. See the
 credentials.json.example file for an example of the correct contents of this file.
 
-This is still a very early stage, but any help is appreciated in getting this up and running in a more 
-complete fashion.
+This library is more-or-less complete. The only missing feature is the ability to process opaque
+tag values. This will be added shortly.
 
 Currently we have a class (FluidConnector) that facilitates interaction with FluidDB, a suite of tests
 for this class and some other helper classes.
 
-I (ntoll) have partially completed a FOM (Fluid-Object-Mapper) to sit on top of the FluidConnector 
-class.
+I (ntoll) have completed a FOM (Fluid-Object-Mapper) to sit on top of the FluidConnector class.
+
+As the FluidDB is changing throughout the "Alpha" phase then you should check for new versions of
+this library as we update it to keep in line with FluidDB's current state.
 
 All feedback, patches, bug-reports are most welcome!
 
@@ -86,6 +91,20 @@ public class fluidTest {
         Tag newTag = fdb.getTag(tagPaths[0]);
         FluidResponse r = newObj.getTagValue(newTag);
         // Assuming all is well the result is returned by calling r.getResponseContent(); 
+        
+        // Lets set / get some permissions
+        
+        // This will only give the current user and the fluiddb "superuser" account the ability
+        // to create namespaces underneath the namespace "book"
+        Permission p = new Permission(Policy.CLOSED, new String[]{"fluidDB", username});
+        books.setPermission(Namespace.Actions.CREATE, p);
+        
+        // Lets get the default permission policy for the user for updating the "books/rating"
+        // tag
+        Permission updateTag = rating.getTagPermission(Tag.TagActions.UPDATE);
+        // Calling GetPolicy() and GetExceptions() on an instance of the Permission class will
+        // tell you what the permissions are (as described in the FluidDB docs)
+        
         // Lets do some cleanup...
         
         // Remove the tags from the object that we created to represent the seven pillars

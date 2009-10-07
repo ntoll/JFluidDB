@@ -1,13 +1,12 @@
-package com.fluidinfo.fom.tests;
+package com.fluidinfo.fom;
 
 import static org.junit.Assert.*;
 
 import org.junit.*;
 
 import com.fluidinfo.FluidResponse;
-import com.fluidinfo.fom.*;
 import com.fluidinfo.fom.Object;
-import com.fluidinfo.tests.TestUtils;
+import com.fluidinfo.TestUtils;
 import java.util.UUID;
 
 /**

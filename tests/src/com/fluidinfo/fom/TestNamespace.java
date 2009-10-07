@@ -1,12 +1,12 @@
-package com.fluidinfo.fom.tests;
+package com.fluidinfo.fom;
 
 import static org.junit.Assert.*;
 import java.io.IOException;
 import org.junit.*;
 import org.json.JSONException;
 import com.fluidinfo.*;
-import com.fluidinfo.fom.*;
-import com.fluidinfo.tests.TestUtils;
+import com.fluidinfo.utils.Policy;
+
 import java.util.UUID;
 
 /**
@@ -152,5 +152,27 @@ public class TestNamespace extends Namespace {
 		Namespace gotNamespace = testNamespace.getNamespace(newName);
 		assertEquals(newNamespace.getId(), gotNamespace.getId());
 		gotNamespace.delete();
+	}
+	
+	@Test
+	public void testGetSetPermission() throws Exception {
+	    // Lets create a new namespace underneath the user's default root namespace and 
+	    // play with the permissions on that
+	    Namespace n = new Namespace(this.fdb, "", this.fdb.getUsername());
+	    n.getItem();
+	    String newName = UUID.randomUUID().toString();
+	    Namespace newNamespace = n.createNamespace(newName, "Created for the purposes of testing");
+	    // Lets set a strange permission on the namespace so we know what we're checking when 
+	    // we get it back
+	    Permission p = new Permission(Policy.OPEN, new String[]{"fluiddb"});
+	    newNamespace.setPermission(Namespace.Actions.CREATE, p);
+	    
+	    // OK... lets try getting the newly altered permission back
+	    Permission checkP = newNamespace.getPermission(Namespace.Actions.CREATE);
+	    assertEquals(p.GetPolicy(), checkP.GetPolicy());
+	    assertEquals(p.GetExceptions()[0], checkP.GetExceptions()[0]);
+	    
+	    // Housekeeping to clean up after ourselves...
+	    newNamespace.delete();
 	}
 }

@@ -108,32 +108,32 @@ public class FluidConnector {
     
     /**
     * Makes a call to FluidDB
-    * @param m The type of HTTP method to use 
+    * @param method The type of HTTP method to use 
     * @param path The path to call
     * @return A string version of the result
     * @throws FluidException If an error occurs, such as no such resource
     * @throws IOException 
     */
-    public FluidResponse Call(Method m, String path) throws FluidException, IOException {
-        return this.Call(m, path, "");
+    public FluidResponse Call(Method method, String path) throws FluidException, IOException {
+        return this.Call(method, path, "");
     }
 
     /**
      * Makes a call to FluidDB
-     * @param m The type of HTTP method to use 
+     * @param method The type of HTTP method to use 
      * @param path The path to call
      * @param body An optional body to send with the request
      * @return A string version of the result
      * @throws FluidException If an error occurs, such as no such resource
      * @throws IOException 
      */
-    public FluidResponse Call(Method m, String path, String body) throws FluidException, IOException {
-        return this.Call(m, path, body, new Hashtable<String, String>());
+    public FluidResponse Call(Method method, String path, String body) throws FluidException, IOException {
+        return this.Call(method, path, body, new Hashtable<String, String>());
     }
     
     /**
      * Makes a call to FluidDB
-     * @param m The type of HTTP method to use 
+     * @param method The type of HTTP method to use 
      * @param path The path to call
      * @param body An optional body to send with the request
      * @param args A dictionary of arguments to pass with the request
@@ -142,13 +142,13 @@ public class FluidConnector {
      *         arguments
      * @throws IOException Will get thrown if we can't extract the errorStream from the connection
      */
-    public FluidResponse Call(Method m, String path, String body, Hashtable<String, String> args) throws FluidException, IOException {
-        return this.Call(m, path, body, args, "application/json; charset=utf-8");
+    public FluidResponse Call(Method method, String path, String body, Hashtable<String, String> args) throws FluidException, IOException {
+        return this.Call(method, path, body, args, "application/json; charset=utf-8");
     }
     
     /**
      * Makes a call to FluidDB
-     * @param m The type of HTTP method to use 
+     * @param method The type of HTTP method to use 
      * @param path The path to call
      * @param body An optional body to send with the request
      * @param args A dictionary of arguments to pass with the request
@@ -158,7 +158,7 @@ public class FluidConnector {
      *         arguments
      * @throws IOException Will get thrown if we can't extract the errorStream from the connection
      */
-    public FluidResponse Call(Method m, String path, String body, Hashtable<String, String> args, String content_type) throws FluidException, IOException {   
+    public FluidResponse Call(Method method, String path, String body, Hashtable<String, String> args, String content_type) throws FluidException, IOException {   
         // Build the URI we'll be calling
         StringBuffer uri = new StringBuffer();
         uri.append( this.url );
@@ -191,8 +191,8 @@ public class FluidConnector {
         try{
             // Basic setup of the connection to FluidDB
             connection = (HttpURLConnection)new URL( uri.toString() ).openConnection();
-            connection.setRequestMethod(  m.toString().toUpperCase() );
-            if ( m == Method.POST || m == Method.PUT )
+            connection.setRequestMethod(method.toString().toUpperCase() );
+            if ( method == Method.POST || method == Method.PUT )
                 connection.setDoInput(true);
             connection.setDoOutput(true);
             //connection.setReadTimeout(5000);
@@ -265,6 +265,25 @@ public class FluidConnector {
         String requestID = connection.getHeaderField("X-FluidDB-Request-Id");
         // Build the FluidResponse object
         return new FluidResponse(responseCode, responseMessage, responseEncoding, content, responseError, requestID);
+    }
+    
+    /**
+     * Given a response that might *not* be what is expected this method will create
+     * a helpful message to include in the exception
+     * @param r The problematic response
+     * @return A helpful message explaining what the problem is
+     */
+    public String BuildExceptionMessageFromResponse(FluidResponse r) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("FluidDB returned the following problematic response: ");
+        sb.append(r.getResponseCode());
+        sb.append(" (");
+        sb.append(r.getResponseMessage());
+        sb.append(") ");
+        sb.append(r.getResponseError());
+        sb.append(" - with the request ID: ");
+        sb.append(r.getErrorRequestID());
+        return sb.toString();
     }
 }
 	

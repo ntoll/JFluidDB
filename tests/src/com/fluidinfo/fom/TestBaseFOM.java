@@ -1,19 +1,22 @@
-package com.fluidinfo.fom.tests;
+package com.fluidinfo.fom;
 
 import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.*;
 
+import com.fluidinfo.FluidConnector;
+import com.fluidinfo.FluidDB;
 import com.fluidinfo.FluidException;
 import com.fluidinfo.FluidResponse;
-import com.fluidinfo.fom.*;
-import com.fluidinfo.tests.TestUtils;
+import com.fluidinfo.TestUtils;
 import com.fluidinfo.utils.Method;
+import com.fluidinfo.utils.Policy;
 import com.fluidinfo.utils.StringUtil;
 
 /**
@@ -113,6 +116,72 @@ public class TestBaseFOM extends BaseFOM {
 	}
 	
 	@Test
+	public void testGetPermission() throws Exception {
+	    this.fdb = TestUtils.getFluidConnectionWithSettings();
+	    String[] path = {"/permissions","namespaces", this.fdb.getUsername()};
+	    Permission p = this.GetPermission(StringUtil.URIJoin(path), "create");
+	    // if we get a permission object back we know it worked
+	    assertEquals(false, p==null);
+	    // if we don't have permission then the return value will be null
+	    path = new String[]{"/permissions","namespaces", "fluiddb"};
+        p = this.GetPermission(StringUtil.URIJoin(path), "create");
+        // if we get a permission object back we know it worked
+        assertEquals(true, p==null);
+        // lets try that one more time without an action (for the context of policies)
+        path = new String[]{"/policies", this.fdb.getUsername(), "namespaces", "create" };
+        p = this.GetPermission(StringUtil.URIJoin(path), "");
+        // if we get a permission object back we know it worked
+        assertEquals(false, p==null);
+	}
+	
+	@Test
+	public void testSetPermission() throws Exception {
+	    // Lets create a new namespace and change the permissions on it
+	    this.fdb = TestUtils.getFluidConnectionWithSettings();
+	    FluidDB f = new FluidDB(FluidConnector.SandboxURL);
+	    f.Login(this.fdb.getUsername(), this.fdb.getPassword());
+	    Namespace n = f.getLoggedInUser().RootNamespace();
+	    String newName = UUID.randomUUID().toString();
+	    Namespace newNamespace = n.createNamespace(newName, "For the purposes of testing");
+	    String[] namespacePath = {"/permissions", newNamespace.getPath()};
+	    // create the new permission
+	    Permission p = new Permission(Policy.CLOSED, new String[]{"fluiddb"});
+	    // set it against the namespace
+	    this.SetPermission(StringUtil.URIJoin(namespacePath), "create", p);
+	    // Lets call FluidDB and make sure it worked
+	    Permission checkP = this.GetPermission(StringUtil.URIJoin(namespacePath), "create");
+	    assertEquals(p.GetPolicy(), checkP.GetPolicy());
+	    assertEquals(p.GetExceptions()[0], checkP.GetExceptions()[0]);
+	    // Clean up and delete the newly created namespace
+	    newNamespace.delete();
+	    // lets try that one more time without an action (for the context of policies)
+	    // Notice that I'm using the sandbox's test account so we don't inadvertently break a "real"
+	    // user's policies. :-/
+        f.Logout();
+        this.fdb.setUsername("test");
+        this.fdb.setPassword("test");
+        f.Login("test", "test");
+        String[] path = new String[]{"/policies", this.fdb.getUsername(), "namespaces", "create" };
+        p = new Permission(Policy.CLOSED, new String[]{"fluidDB", this.fdb.getUsername()});
+        // lets set the permission - if we don't get an exception we should assume it worked
+        this.SetPermission(StringUtil.URIJoin(path), "", p);
+        // but lets just check anyway ;-)
+        checkP = this.GetPermission(StringUtil.URIJoin(path), "");
+        assertEquals(Policy.CLOSED, checkP.GetPolicy());
+        String[] exceptions = checkP.GetExceptions();
+        assertEquals(2, exceptions.length);
+        assertEquals(true, (exceptions[0].equals(this.fdb.getUsername()) || exceptions[1].equals(this.fdb.getUsername())));
+        // Right then, lets update the permission so we can observe a change
+        p = new Permission(Policy.CLOSED, new String[]{this.fdb.getUsername()});
+        this.SetPermission(StringUtil.URIJoin(path), "", p);
+        checkP = this.GetPermission(StringUtil.URIJoin(path), "");
+        assertEquals(Policy.CLOSED, checkP.GetPolicy());
+        exceptions = checkP.GetExceptions();
+        assertEquals(1, exceptions.length);
+        assertEquals(true, exceptions[0].equals(this.fdb.getUsername()));
+	}
+	
+	@Test
 	public void testCallWithException() throws Exception {
 		this.fdb = TestUtils.getFluidConnectionWithSettings();
 		this.rootPath="/namespaces";
@@ -122,7 +191,7 @@ public class TestBaseFOM extends BaseFOM {
 		try {
 			this.Call(Method.PUT, 204, body.toString());
 		} catch (FluidException ex) {
-			assertEquals(true, ex.getMessage().startsWith("FluidDB returned the following error: 401 (Unauthorized) TPathPermissionDenied - with the request ID: "));
+			assertEquals(true, ex.getMessage().startsWith("FluidDB returned the following problematic response: 401 (Unauthorized) TPathPermissionDenied - with the request ID: "));
 		}
 	}
 

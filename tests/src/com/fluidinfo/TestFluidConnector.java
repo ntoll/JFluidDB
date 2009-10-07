@@ -1,4 +1,4 @@
-package com.fluidinfo.tests;
+package com.fluidinfo;
 
 import java.util.Hashtable;
 import java.util.UUID;
@@ -6,7 +6,6 @@ import java.util.UUID;
 import junit.framework.TestCase;
 import org.junit.*;
 
-import com.fluidinfo.*;
 import com.fluidinfo.utils.Method;
 
 import org.json.JSONObject;
@@ -226,5 +225,13 @@ public class TestFluidConnector extends TestCase {
 	@Test
 	public void testGetUrl() {
 		assertEquals(FluidConnector.SandboxURL, this.fdb.getUrl());
+	}
+	
+	@Test
+	public void testBuildExceptionMessageFromResponse() {
+	    FluidResponse r = new FluidResponse(404, "Not found", "application/json", "", "AnExceptionFromFluidDB", "ABCDEFG123");
+	    String result = this.fdb.BuildExceptionMessageFromResponse(r);
+	    String expected = "FluidDB returned the following problematic response: 404 (Not found) AnExceptionFromFluidDB - with the request ID: ABCDEFG123";
+	    assertEquals(expected, result);
 	}
 }

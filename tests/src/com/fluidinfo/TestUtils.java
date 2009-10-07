@@ -1,4 +1,4 @@
-package com.fluidinfo.tests;
+package com.fluidinfo;
 
 import java.io.BufferedReader;
 import java.io.File;

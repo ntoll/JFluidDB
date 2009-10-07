@@ -31,9 +31,11 @@ import com.fluidinfo.FluidConnector;
 import com.fluidinfo.FluidException;
 import com.fluidinfo.FluidResponse;
 import com.fluidinfo.utils.Method;
+import com.fluidinfo.utils.StringUtil;
 
 /**
- * 
+ * See: {@link http://doc.fluidinfo.com/fluidDB/tags.html}
+ * <p>
  * A FluidDB user, for example named Sara, can tag as many different objects as she likes 
  * with her tags, using whatever values she likes. For example, she might tag an object 
  * representing The Eiffel Tower, with a sara/opinion of beautiful and another object representing 
@@ -58,7 +60,40 @@ public class Tag extends BaseFOM {
 	 * Whether of not tag values should be indexed
 	 */
 	private boolean indexed = true;
+    
+    /**
+     * Possible actions against which tag permissions can be got/set
+     * 
+     * @author ntoll
+     *
+     */
+    public enum TagActions {
+        UPDATE, 
+        DELETE, 
+        CONTROL
+    }
+    
+    /**
+     * Possible actions against which tag-value permissions can be got/set
+     * @author ntoll
+     *
+     */
+    public enum TagValueActions {
+        SEE,
+        CREATE, 
+        READ,
+        UPDATE, 
+        DELETE,
+        CONTROL
+    }
 	
+    /**
+     * Constructor
+     * @param fdb The connection to FluidDB
+     * @param id The id of the tag in FluidDB
+     * @param path The path to the namespace in FluidDB
+     * @throws FOMException
+     */
 	public Tag(FluidConnector fdb, String id, String path) throws FOMException {
 		super(fdb, id);
 		this.rootPath="/tags";
@@ -151,4 +186,61 @@ public class Tag extends BaseFOM {
 		this.Call(Method.DELETE, 204, "");
 	}
 
+	/**
+	 * Gets the permissions associated with the referenced action for this tag
+	 * 
+	 * @param action The action whose permission information is sought
+	 * @return An instance of the Permission class representing the policy and exceptions
+	 * @throws FluidException
+	 * @throws IOException
+	 * @throws FOMException
+	 * @throws JSONException
+	 */
+	public Permission getTagPermission(TagActions action) throws FluidException, IOException, FOMException, JSONException {
+	    String[] path = {"/permissions", this.rootPath, this.path};
+        return this.GetPermission(StringUtil.URIJoin(path), action.toString().toLowerCase());
+	}
+	
+	/**
+     * Gets the permissions associated with the referenced action for this tag's instances (tag-values)
+     * 
+     * @param action The action whose permission information is sought
+     * @return An instance of the Permission class representing the policy and exceptions
+     * @throws FluidException
+     * @throws IOException
+     * @throws FOMException
+     * @throws JSONException
+     */
+	public Permission getTagValuePermission(TagValueActions action) throws FluidException, IOException, FOMException, JSONException {
+	    String[] path = {"/permissions", "tag-values", this.path};
+        return this.GetPermission(StringUtil.URIJoin(path), action.toString().toLowerCase());
+	}
+	
+	/**
+     * Sets the permissions associated with the referenced action for this tag
+     * 
+     * @param action The action whose permission information is to be updated
+     * @param permission An instance of the Permission class that represents the new policy and exceptions.
+     * @throws JSONException
+     * @throws FluidException
+     * @throws IOException
+     */
+	public void setTagPermission(TagActions action, Permission permission) throws JSONException, FluidException, IOException {
+	    String[] path = {"/permissions", this.rootPath, this.path};
+        this.SetPermission(StringUtil.URIJoin(path), action.toString().toLowerCase(), permission);
+	}
+	
+	/**
+     * Sets the permissions associated with the referenced action for this tag's instances (tag-values)
+     * 
+     * @param action The action whose permission information is to be updated
+     * @param permission An instance of the Permission class that represents the new policy and exceptions.
+     * @throws JSONException
+     * @throws FluidException
+     * @throws IOException
+     */
+	public void setTagValuePermission(TagValueActions action, Permission permission) throws JSONException, FluidException, IOException {
+	    String[] path = {"/permissions", "tag-values", this.path};
+        this.SetPermission(StringUtil.URIJoin(path), action.toString().toLowerCase(), permission);
+	}
 }

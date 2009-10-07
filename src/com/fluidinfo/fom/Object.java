@@ -34,12 +34,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * See http://doc.fluidinfo.com/fluidDB/objects.html
- * 
+ * See: {@link http://doc.fluidinfo.com/fluidDB/objects.html}
+ * <p>
  * FluidDB is conceptually very simple: it holds a large number of objects, all of 
  * a single flexible kind, and it provides the means to create, modify, and retrieve 
  * these objects.
- * 
+ * <p>
  * A FluidDB object is just a collection of tags, usually with values.
  * 
  * @author ntoll

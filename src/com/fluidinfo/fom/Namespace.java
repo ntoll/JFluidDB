@@ -34,15 +34,15 @@ import com.fluidinfo.utils.Method;
 import com.fluidinfo.utils.StringUtil;
 
 /**
- * See http://doc.fluidinfo.com/fluidDB/namespaces.html
- * 
+ * See: {@link http://doc.fluidinfo.com/fluidDB/namespaces.html}
+ * <p>
  * FluidDB namespaces provide a simple hierarchical way of organizing names - names of tags, 
  * and names of other (sub-)namespaces.
- * 
+ * <p>
  * When a new user is created within FluidDB, a top-level namespace is created for them. For 
  * example, if Tim chooses the FluidDB user name tim, a top-level tim namespace is created for 
  * him.
- * 
+ * <p>
  * FluidDB user names are case insensitive.
  * 
  * @author ntoll
@@ -57,6 +57,20 @@ public class Namespace extends BaseFOM {
 	protected String[] namespaces = null;
 	
 	protected String[] tags = null;
+	
+	/**
+	 * Possible actions against which permissions can be got/set
+	 * 
+	 * @author ntoll
+	 *
+	 */
+	public enum Actions {
+	    CREATE, 
+	    UPDATE, 
+	    DELETE, 
+	    LIST, 
+	    CONTROL
+	}
 
 	/**
 	 * Constructor
@@ -255,5 +269,34 @@ public class Namespace extends BaseFOM {
 		// populate it
 		childNamespace.getItem();
 		return childNamespace;
+	}
+	
+	/**
+	 * Gets the permissions associated with the referenced action for this namespace
+	 * 
+	 * @param action The action whose permission information is sought
+	 * @return An instance of the Permission class representing the policy and exceptions
+	 * @throws FluidException
+	 * @throws IOException
+	 * @throws FOMException
+	 * @throws JSONException
+	 */
+	public Permission getPermission(Actions action) throws FluidException, IOException, FOMException, JSONException {
+	    String[] path = {"/permissions", this.rootPath, this.path};
+	    return this.GetPermission(StringUtil.URIJoin(path), action.toString().toLowerCase());
+	}
+	
+	/**
+	 * Sets the permissions associated with the referenced action for this namespace
+	 * 
+	 * @param action The action whose permission information is to be updated
+	 * @param permission An instance of the Permission class that represents the new policy and exceptions.
+	 * @throws JSONException
+	 * @throws FluidException
+	 * @throws IOException
+	 */
+	public void setPermission(Actions action, Permission permission) throws JSONException, FluidException, IOException {
+	    String[] path = {"/permissions", this.rootPath, this.path};
+	    this.SetPermission(StringUtil.URIJoin(path), action.toString().toLowerCase(), permission);
 	}
 }

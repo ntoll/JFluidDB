@@ -1,8 +1,7 @@
-package com.fluidinfo.tests;
+package com.fluidinfo;
 
 import junit.framework.TestCase;
 import org.junit.*;
-import com.fluidinfo.*;
 
 public class TestFluidResponse extends TestCase{
 	

@@ -23,7 +23,6 @@ package com.fluidinfo.fom;
 
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +33,7 @@ import com.fluidinfo.utils.*;
 /**
  * 
  * Base class for all other Fluid Object Model (FOM) classes
- * 
+ * <p>
  * Provides shared / common functionality
  * 
  * @author ntoll
@@ -86,9 +85,7 @@ public abstract class BaseFOM implements FOMInterface {
 	 * @return the instance's path in FluidDB
 	 */
 	public String getPath(){
-		Vector<String> paths = new Vector<String>();
-		paths.add(this.rootPath);
-		paths.add(this.path);
+		String[] paths = {this.rootPath, this.path};
 		return StringUtil.URIJoin(paths);
 	}
 	
@@ -193,19 +190,76 @@ public abstract class BaseFOM implements FOMInterface {
 		if(response.getResponseCode()==expectedReturnCode){
 			return response;
 		} else {
-			// Hmmm... we didn't get the response we were expecting so build as helpful
-			// an exception as possible.
-			StringBuilder sb = new StringBuilder();
-			sb.append("FluidDB returned the following error: ");
-			sb.append(response.getResponseCode());
-			sb.append(" (");
-			sb.append(response.getResponseMessage());
-			sb.append(") ");
-			sb.append(response.getResponseError());
-			sb.append(" - with the request ID: ");
-			sb.append(response.getErrorRequestID());
-			throw new FluidException(sb.toString().trim());
+		    String message = this.fdb.BuildExceptionMessageFromResponse(response);
+			throw new FluidException(message);
 		}
+	}
+	
+	/**
+	 * Given a path and action will return the permissions associated with it. Will return null
+	 * if the logged in user is not authorized to view the permissions (they don't have the CONTROL
+	 * permission
+	 * 
+	 * @param path e.g. /permissions/namespaces/foo
+	 * @param action e.g. create, update, delete, list, control etc...
+	 * @return An instance of the Permission class or null
+	 * @throws FluidException
+	 * @throws IOException
+	 * @throws FOMException
+	 * @throws JSONException
+	 */
+	protected Permission GetPermission(String path, String action) throws FluidException, IOException, FOMException, JSONException {
+	    Hashtable<String, String> args = new Hashtable<String, String>();
+	    if(action==null || action.length()>0) {
+	        args.put("action", action);
+	    }
+	    FluidResponse response = this.fdb.Call(Method.GET, path, "", args);
+	    if(response.getResponseCode()==200) {
+	        // we have the permissions returned in a JSON object
+	        JSONObject jsonResult = this.getJsonObject(response);
+	        String policy = jsonResult.getString("policy");
+	        String[] exceptions = StringUtil.getStringArrayFromJSONArray(jsonResult.getJSONArray("exceptions"));
+	        Policy p;
+	        if (policy.equals("open")) {
+	            p = Policy.OPEN;
+	        } else {
+	            p = Policy.CLOSED;
+	        }
+	        return new Permission(p, exceptions);
+	    } else if (response.getResponseCode()==401){
+	        // unauthorized so return null
+	        return null;
+	    } else {
+	        // something barfed so raise an informative exception
+            String message = this.fdb.BuildExceptionMessageFromResponse(response);
+            throw new FluidException(message);
+	    }
+	}
+	
+	/**
+	 * Given a path, action and instance of the Permission class will attempt to appropriately
+	 * update the referenced URI with the appropriate permissions
+	 * @param path The path to PUT the permission
+	 * @param action The action that is being updated
+	 * @param permission An instance of the Permission class containing the policy and exceptions
+	 * @throws JSONException
+	 * @throws FluidException
+	 * @throws IOException
+	 */
+	protected void SetPermission(String path, String action, Permission permission) throws JSONException, FluidException, IOException {
+	    Hashtable<String, String> args = new Hashtable<String, String>();
+	    if(action==null || action.length()>0) {
+	        args.put("action", action);
+	    }
+        JSONObject jsonPayload = new JSONObject();
+        jsonPayload.put("exceptions", permission.GetExceptions());
+        jsonPayload.put("policy", permission.GetPolicy().toString().toLowerCase());
+        FluidResponse response = this.fdb.Call(Method.PUT, path, jsonPayload.toString(), args);
+        if(response.getResponseCode()!=204) {
+         // something barfed so raise an informative exception
+            String message = this.fdb.BuildExceptionMessageFromResponse(response);
+            throw new FluidException(message);
+        }
 	}
 	
 	/**

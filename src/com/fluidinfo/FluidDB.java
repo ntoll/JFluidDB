@@ -195,34 +195,34 @@ public class FluidDB {
 	
 	/**
 	 * Given a query, will return a list of object ids that match. From the FluidDB docs:
-	 * 
+	 * <p>
 	 * FluidDB provides a simple query language that allows applications to search for objects 
 	 * based on their tags’ values. The following kinds of queries are possible:
-     *
+     * <p>
      *  * Numeric: To find objects based on the numeric value of tags. For example, tim/rating > 5.
-     *  
+     * <p> 
      *  * Textual: To find objects based on text matching of their tag values, e.g., 
      *    sally/opinion matches fantastic. Text matching is done with Lucene, meaning that 
      *    Lucene matching capabilities and style will be available [NOT YET IMPLEMENTED].
-     *    
+     * <p>  
      *  * Presence: Use has to request objects that have a given tag. For example, has 
      *    sally/opinion.
-     *    
+     * <p>   
      *  * Set contents: A tag on an object can hold a set of strings. For example, a tag called 
      *    mary/product-reviews/keywords might be on an object with a value of [ "cool", "kids", 
      *    "adventure" ]. The contains operator can be used to select objects with a matching value. 
      *    The query mary/product-reviews/keywords contains "kids" would match the object in this 
      *    example.
-     *    
+     * <p>   
      *  * Exclusion: You can exclude objects with the except keyword. For example has 
      *    nytimes.com/appeared except has james/seen. The except operator performs a set difference.
-     *    
+     * <p>   
      *  * Logic: Query components can be combined with and and or. For example, has sara/rating and 
      *    tim/rating > 5.
-     *    
+     * <p>   
      *  * Grouping: Parentheses can be used to group query components. For example, has sara/rating 
      *    and (tim/rating > 5 or mike/rating > 7).
-     *
+     * <p>
      * That’s it!
      * 
 	 * @param query The query
@@ -240,16 +240,8 @@ public class FluidDB {
             return StringUtil.getStringArrayFromJSONArray(ids);
 	    } else {
 	        // Lets generate a helpful exception...
-	        StringBuilder sb = new StringBuilder();
-            sb.append("FluidDB returned the following error: ");
-            sb.append(r.getResponseCode());
-            sb.append(" (");
-            sb.append(r.getResponseMessage());
-            sb.append(") ");
-            sb.append(r.getResponseError());
-            sb.append(" - with the request ID: ");
-            sb.append(r.getErrorRequestID());
-            throw new FluidException(sb.toString().trim());
+	        String message = this.fdb.BuildExceptionMessageFromResponse(r);
+            throw new FluidException(message);
 	    }
 	}
 }
