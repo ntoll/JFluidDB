@@ -47,6 +47,7 @@ import org.json.JSONObject;
 public class User extends BaseFOM{
 	
 	private String name;
+	private String username;
 
 	/**
 	 * Constructor
@@ -60,7 +61,8 @@ public class User extends BaseFOM{
 		super(fdb, id);
 		this.rootPath = "/users";
 		this.path = path;
-		this.name = this.GetNameFromPath(path);
+		this.username = this.GetNameFromPath(path);
+		this.name = "";
 	}
 
 	@Override
@@ -80,6 +82,15 @@ public class User extends BaseFOM{
 	public String getName() {
 		return this.name;
 	}
+	
+	/**
+	 * Gets the user's username
+	 * 
+	 * @return the user's username
+	 */
+	public String getUsername() {
+	    return this.username;
+	}
 
 	/**
 	 * Returns the user's root namespace (/namespace/USERNAME)
@@ -91,7 +102,7 @@ public class User extends BaseFOM{
 	 * @throws FluidException 
 	 */
 	public Namespace RootNamespace() throws FluidException, IOException, FOMException, JSONException {
-		Namespace rootNamespace = new Namespace(this.fdb, "", this.name);
+		Namespace rootNamespace = new Namespace(this.fdb, "", this.username);
 		// populate it
 		rootNamespace.getItem();
 		return rootNamespace;
@@ -108,7 +119,7 @@ public class User extends BaseFOM{
 	 * @throws JSONException
 	 */
 	public Permission getNamespacePolicy(Namespace.Actions action) throws FluidException, IOException, FOMException, JSONException {
-	    String[] path = {"/policies", this.name, "namespaces", action.toString().toLowerCase()};
+	    String[] path = {"/policies", this.username, "namespaces", action.toString().toLowerCase()};
         return this.GetPermission(StringUtil.URIJoin(path), "");
 	}
 	
@@ -123,7 +134,7 @@ public class User extends BaseFOM{
      * @throws JSONException
      */
 	public Permission getTagPolicy(Tag.TagActions action) throws FluidException, IOException, FOMException, JSONException {
-	    String[] path = {"/policies", this.name, "tags", action.toString().toLowerCase()};
+	    String[] path = {"/policies", this.username, "tags", action.toString().toLowerCase()};
         return this.GetPermission(StringUtil.URIJoin(path), "");
 	}
 	
@@ -138,7 +149,7 @@ public class User extends BaseFOM{
      * @throws JSONException
      */
 	public Permission getTagValuePolicy(Tag.TagValueActions action) throws FluidException, IOException, FOMException, JSONException {
-	    String[] path = {"/policies", this.name, "tag-values", action.toString().toLowerCase()};
+	    String[] path = {"/policies", this.username, "tag-values", action.toString().toLowerCase()};
         return this.GetPermission(StringUtil.URIJoin(path), "");
 	}
 	
@@ -152,7 +163,7 @@ public class User extends BaseFOM{
 	 * @throws IOException
 	 */
 	public void setNamespacePolicy(Namespace.Actions action, Permission permission) throws JSONException, FluidException, IOException {
-	    String[] path = {"/policies", this.name, "namespaces", action.toString().toLowerCase()};
+	    String[] path = {"/policies", this.username, "namespaces", action.toString().toLowerCase()};
         this.SetPermission(StringUtil.URIJoin(path), "", permission);
 	}
 	
@@ -166,7 +177,7 @@ public class User extends BaseFOM{
      * @throws IOException
      */
 	public void setTagPolicy(Tag.TagActions action, Permission permission) throws JSONException, FluidException, IOException {
-	    String[] path = {"/policies", this.name, "tags", action.toString().toLowerCase()};
+	    String[] path = {"/policies", this.username, "tags", action.toString().toLowerCase()};
         this.SetPermission(StringUtil.URIJoin(path), "", permission);
 	}
 	
@@ -180,7 +191,7 @@ public class User extends BaseFOM{
      * @throws IOException
      */
 	public void setTagValuePolicy(Tag.TagValueActions action, Permission permission) throws JSONException, FluidException, IOException {
-	    String[] path = {"/policies", this.name, "tag-values", action.toString().toLowerCase()};
+	    String[] path = {"/policies", this.username, "tag-values", action.toString().toLowerCase()};
         this.SetPermission(StringUtil.URIJoin(path), "", permission);
 	}
 }

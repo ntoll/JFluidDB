@@ -9,6 +9,7 @@ import org.json.JSONException;
 import com.fluidinfo.*;
 import com.fluidinfo.utils.Policy;
 import com.fluidinfo.utils.StringUtil;
+import com.fluidinfo.TestUtils;
 
 /**
  * Exercise the User class
@@ -33,6 +34,7 @@ public class TestUser extends User {
 		assertEquals("id", this.getId());
 		String[] path = {"/users", this.fdb.getUsername()};
 		assertEquals(StringUtil.URIJoin(path), this.getPath());
+		assertEquals(this.fdb.getUsername(), this.getUsername());
 	}
 	
 	@Test
@@ -40,17 +42,29 @@ public class TestUser extends User {
 		User testUser = new User(this.fdb, "", this.fdb.getUsername());
 		// There isn't anything there
 		assertEquals("", testUser.getId());
+		assertEquals("", testUser.getName());
+		// Apart from the username
+		assertEquals(this.fdb.getUsername(), testUser.getUsername());
 		// Lets call FluidDB and populate the fields... now there should be an ID
 		testUser.getItem();
 		assertEquals(true, testUser.getId().length()>0);
+		assertEquals(true, testUser.getName().length()>0);
 	}
 	
 	@Test
-	public void testGetName() throws FOMException, FluidException, IOException, JSONException {
+	public void testGetName() throws Exception {
 		User testUser = new User(this.fdb, "", this.fdb.getUsername());
 		testUser.getItem();
-		assertEquals(this.fdb.getUsername(), testUser.getName());
+		// get the test user's name from the credentials.json file.
+		assertEquals(TestUtils.getUserRealName(), testUser.getName());
 	}
+	
+	@Test
+    public void testGetUserName() throws FOMException, FluidException, IOException, JSONException {
+        User testUser = new User(this.fdb, "", this.fdb.getUsername());
+        testUser.getItem();
+        assertEquals(this.fdb.getUsername(), testUser.getUsername());
+    }
 	
 	@Test
 	public void testGetNamespace() throws FOMException, FluidException, JSONException, IOException {

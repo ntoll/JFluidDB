@@ -13,8 +13,8 @@ Test coverage is currently 92.4% (and getting better all the time).
 
 To be able to run the unit tests you need to provide some valid credentials for the sandbox instance
 of FluidDB. You can supply these by putting a credentials.json file in your home directory - the
-test fixture will attempt to read this file and use the username and password defined therein. See the
-credentials.json.example file for an example of the correct contents of this file.
+test fixture will attempt to read this file and use the username, password and real name defined therein. 
+See the credentials.json.example file for an example of the correct contents of this file.
 
 This library is more-or-less complete. The only missing feature is the ability to process opaque
 tag values. This will be added shortly.

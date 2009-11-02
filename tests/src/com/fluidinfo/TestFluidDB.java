@@ -72,15 +72,15 @@ public class TestFluidDB extends FluidDB{
         assertEquals(FluidConnector.SandboxURL, fdb.getURL());
 	    fdb.Login(this.testUsername, this.testPassword);
 	    User u = fdb.getLoggedInUser();
-	    assertEquals(this.testUsername, u.getName());
+	    assertEquals(TestUtils.getUserRealName(), u.getName());
 	}
     
     @Test
-    public void testGetUser() throws FOMException, FluidException, IOException, JSONException {
+    public void testGetUser() throws Exception {
         FluidDB fdb = new FluidDB(FluidConnector.SandboxURL);
         assertEquals(FluidConnector.SandboxURL, fdb.getURL());
         User user = fdb.getUser(this.testUsername);
-        assertEquals(this.testUsername, user.getName());
+        assertEquals(TestUtils.getUserRealName(), user.getName());
         assertEquals(true, user.getId().length()>0);
     }
     

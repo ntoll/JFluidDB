@@ -1,2 +1,6 @@
 In order to run these tests you'll need jUnit installed (see
-http://www.junit.org/ for more information).
+http://www.junit.org/ for more information). You'll also need
+to have a credentials.json file in your home directory. This 
+is used to provide username, password and "real" name information
+about the test user. See the credentials.json.example file for
+an example.

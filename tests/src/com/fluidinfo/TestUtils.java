@@ -86,11 +86,26 @@ public class TestUtils {
 		JSONObject credentials = TestUtils.getSettings();
 		String username = credentials.getString("username");
 		String password = credentials.getString("password");
-		if (username=="" || password=="")
-		{
-			throw new FluidException("You must supply a username and password in a credentials.json file in order to run the unit tests.");
+		String name = credentials.getString("name");
+		if (username=="" || password=="" || name=="") {
+			throw new FluidException("You must supply a username, password and name in a credentials.json file in order to run the unit tests.");
 		}
 		return TestUtils.getFluidConnection(username, password);
+	}
+	
+	/**
+	 * Will get the user's "name" value from the credentials found in the 
+	 * credentials.json file
+	 * @return the test user's "full" name
+	 * @throws Exception
+	 */
+	public static String getUserRealName() throws Exception {
+	    JSONObject credentials = TestUtils.getSettings();
+	    String name = credentials.getString("name");
+	    if (name=="") {
+	        throw new FluidException("You must supply a name in the credentials.json file in order ro run the unit tests.");
+	    }
+	    return name;
 	}
 	
 	/**
