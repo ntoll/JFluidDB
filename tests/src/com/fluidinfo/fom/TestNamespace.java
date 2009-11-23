@@ -66,6 +66,24 @@ public class TestNamespace extends Namespace {
 		assertEquals(true, newNamespace.getId().length()>0);
 		assertEquals(true, TestUtils.contains(testNamespace.getNamespaceNames(), newName));
 		newNamespace.delete();
+		// Lets make sure validation works correctly...
+		newName = "this is wrong"; // e.g. space is an invalid character
+		String msg = "";
+		try {
+		    newNamespace = testNamespace.createNamespace(newName, "This is a test namespace");
+		} catch (FOMException ex) {
+		    msg = ex.getMessage();
+		}
+		assertEquals("Invalid name (incorrect characters or too long)", msg);
+		// the new name is too long
+		newName = "foobarbazhamandeggscheeseandpicklespamspamspamspamfoobarbazhamandeggscheeseandpicklespamspamspamspamfoobarbazhamandeggscheeseandpicklespamspamspamspamfoobarbazhamandeggscheeseandpicklespamspamspamspamfoobarbazhamandeggscheeseandpicklespamspamspamspam";
+		msg = "";
+        try {
+            newNamespace = testNamespace.createNamespace(newName, "This is a test namespace");
+        } catch (FOMException ex) {
+            msg = ex.getMessage();
+        }
+        assertEquals("Invalid name (incorrect characters or too long)", msg);
 	}
 	
 	@Test
@@ -93,6 +111,24 @@ public class TestNamespace extends Namespace {
 		newTag.delete();
 		testNamespace.getItem();
 		assertEquals(false, TestUtils.contains(testNamespace.getTagNames(), newName));
+		// Lets make sure validation works correctly...
+        newName = "this is wrong"; // e.g. space is an invalid character
+        String msg = "";
+        try {
+            newTag = testNamespace.createTag(newName, "This is a test namespace", false);
+        } catch (FOMException ex) {
+            msg = ex.getMessage();
+        }
+        assertEquals("Invalid name (incorrect characters or too long)", msg);
+        // the new name is too long
+        newName = "foobarbazhamandeggscheeseandpicklespamspamspamspamfoobarbazhamandeggscheeseandpicklespamspamspamspamfoobarbazhamandeggscheeseandpicklespamspamspamspamfoobarbazhamandeggscheeseandpicklespamspamspamspamfoobarbazhamandeggscheeseandpicklespamspamspamspam";
+        msg = "";
+        try {
+            newTag = testNamespace.createTag(newName, "This is a test namespace", false);
+        } catch (FOMException ex) {
+            msg = ex.getMessage();
+        }
+        assertEquals("Invalid name (incorrect characters or too long)", msg);
 	}
 	
 	@Test

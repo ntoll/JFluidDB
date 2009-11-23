@@ -150,14 +150,21 @@ public class Namespace extends BaseFOM {
 	 * @throws FOMException 
 	 */
 	public Namespace createNamespace(String name, String description) throws FluidException, JSONException, IOException, FOMException{
-		JSONObject jsonPayload = new JSONObject();
+		// some validation
+	    String[] newPathFragment = {this.path, name};
+	    String newPath = StringUtil.URIJoin(newPathFragment);
+	    if(!StringUtil.validatePath(newPath)) {
+	        // oops
+	        throw new FOMException("Invalid name (incorrect characters or too long)"); // TODO: Localize this exception
+	    }
+	    // good to go
+	    JSONObject jsonPayload = new JSONObject();
 		jsonPayload.put("description", description);
 		jsonPayload.put("name", name);
 		FluidResponse response = this.Call(Method.POST, 201, jsonPayload.toString());
 		JSONObject jsonResult = StringUtil.getJsonObjectFromString(response.getResponseContent());
 		String newId = jsonResult.getString("id");
-		String[] newPath = {this.path, name};
-		Namespace newNamespace = new Namespace(this.fdb, newId, StringUtil.URIJoin(newPath));
+		Namespace newNamespace = new Namespace(this.fdb, newId, newPath);
 		newNamespace.description = description;
 		return newNamespace;
 	}
@@ -183,7 +190,15 @@ public class Namespace extends BaseFOM {
 	 * @throws FluidException 
 	 */
 	public Tag createTag(String name, String description, boolean indexed) throws FOMException, JSONException, FluidException, IOException{
-		JSONObject jsonPayload = new JSONObject();
+	    // some validation
+        String[] newPathFragment = {this.path, name};
+        String newPath = StringUtil.URIJoin(newPathFragment);
+        if(!StringUtil.validatePath(newPath)) {
+            // oops
+            throw new FOMException("Invalid name (incorrect characters or too long)"); // TODO: Localize this exception
+        }
+        // good to go
+	    JSONObject jsonPayload = new JSONObject();
 		jsonPayload.put("description", description);
 		jsonPayload.put("indexed", indexed);
 		jsonPayload.put("name", name);
@@ -192,9 +207,7 @@ public class Namespace extends BaseFOM {
 		FluidResponse response = this.Call(Method.POST, 201, jsonPayload.toString(), new Hashtable<String, String>(), tagPathURI);
 		JSONObject jsonResult = StringUtil.getJsonObjectFromString(response.getResponseContent());
 		String newId = jsonResult.getString("id");
-		String[] tagFullPath = {this.path, name};
-		String tagFullURI = StringUtil.URIJoin(tagFullPath);
-		Tag newTag = new Tag(this.fdb, newId, indexed, description, tagFullURI);
+		Tag newTag = new Tag(this.fdb, newId, indexed, description, newPath);
 		return newTag;
 	}
 	

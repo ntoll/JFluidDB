@@ -105,4 +105,33 @@ public class StringUtil {
         }
         return result;
     }
+    
+    /**
+     * Makes sure that fluidDB names conforms to the restrictions specified here:
+     * 
+     * http://doc.fluidinfo.com/fluidDB/api/namespaces-and-tags.html
+     * 
+     * * must be composed of Unicode letters, digits, colon, period, hyphen or underscore.
+     * 
+     * * the entire path to a tag, including all its containing namespaces and / delimiters, 
+     *   is limited to 233 characters (a limit inherited from the AMQP specification)
+     *   
+     * @param name The path we're checking
+     * @return an indication of whether the validation has passed or failed.
+     */
+    public static boolean validatePath(String path) {
+        // Handle the empty case
+        if(path==null || path.length()==0) {
+            return false;
+        }
+        // Regex to make sure we don't have any bad characters
+        String[] splitPath = path.split("/");
+        for(int i=0; i<splitPath.length; i++) {
+            if (splitPath[i].matches("^.*[^\\w:.\\-]+.*$")) {
+                return false;
+            }
+        }
+        // finally check the length
+        return path.length() <= 233;
+    }
 }

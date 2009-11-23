@@ -19,12 +19,11 @@ See the credentials.json.example file for an example of the correct contents of 
 This library is more-or-less complete. The only missing feature is the ability to process opaque
 tag values. This will be added shortly.
 
-Currently we have a class (FluidConnector) that facilitates interaction with FluidDB, a suite of tests
-for this class and some other helper classes.
+The library is layered: the low-level FluidConnector class handles direct communication with FluidDB.
+Upon this is built a comprehensive FOM (Fluid-Object-Mapper). You should only ever have to use
+the FOM based classes.
 
-I (ntoll) have completed a FOM (Fluid-Object-Mapper) to sit on top of the FluidConnector class.
-
-As the FluidDB is changing throughout the "Alpha" phase then you should check for new versions of
+As the FluidDB API is changing throughout the "Alpha" phase then you should check for new versions of
 this library as we update it to keep in line with FluidDB's current state.
 
 All feedback, patches, bug-reports are most welcome!

@@ -61,4 +61,37 @@ public class TestStringUtil {
         JSONObject jObj = StringUtil.getJsonObjectFromString(jsonInput);
         assertEquals("bar", jObj.get("foo"));
     }
+	
+	@Test
+	public void testValidatePath() {
+	    // lets start with a good case
+	    String path = "foo/bar/baz";
+	    assertEquals(true, StringUtil.validatePath(path));
+	    // another form of a good case
+	    path = "/foo/bar/baz";
+	    assertEquals(true, StringUtil.validatePath(path));
+	    // null case
+	    assertEquals(false, StringUtil.validatePath(null));
+	    // empty case
+	    assertEquals(false, StringUtil.validatePath(""));
+	    // bad case at end
+	    path = "foo/bar!";
+	    assertEquals(false, StringUtil.validatePath(path));
+	    // bad case at start
+	    path ="!foo/bar";
+	    assertEquals(false, StringUtil.validatePath(path));
+	    // bad case in middle
+	    path = "foo/b@r";
+        assertEquals(false, StringUtil.validatePath(path));
+	    // several bad cases at once
+	    path = "foo/&a$";
+	    assertEquals(false, StringUtil.validatePath(path));
+	    // good chars but just too long (len>233 chars)
+	    // this is length=234
+	    path = "foo/bar/baz/ham/and/eggs/cheese/and/pickle/spam/spam/spam/spam/foo/bar/baz/ham/and/eggs/cheese/and/pickle/spam/spam/spam/spam/foo/bar/baz/ham/and/eggs/cheese/and/pickle/spam/spam/spam/spam/foo/bar/baz/ham/and/eggs/cheese/and/pickle/ok";
+	    assertEquals(false, StringUtil.validatePath(path));
+	    // this is length=233 (so will pass)
+	    path = "foo/bar/baz/ham/and/eggs/cheese/and/pickle/spam/spam/spam/spam/foo/bar/baz/ham/and/eggs/cheese/and/pickle/spam/spam/spam/spam/foo/bar/baz/ham/and/eggs/cheese/and/pickle/spam/spam/spam/spam/foo/bar/baz/ham/and/eggs/cheese/and/pickle/a";
+        assertEquals(true, StringUtil.validatePath(path));
+	}
 }
