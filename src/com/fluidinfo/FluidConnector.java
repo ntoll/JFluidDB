@@ -41,6 +41,11 @@ import com.fluidinfo.utils.StringUtil;
 public class FluidConnector {
     
     /**
+     * Timeout for request
+     */
+    public final static int TIMEOUT = 10*1000;
+    
+    /**
     * The URL for FluidDB
     */
     public final static String URL = "http://fluiddb.fluidinfo.com";  
@@ -195,7 +200,7 @@ public class FluidConnector {
             if ( method == Method.POST || method == Method.PUT )
                 connection.setDoInput(true);
             connection.setDoOutput(true);
-            //connection.setReadTimeout(5000);
+            connection.setReadTimeout(TIMEOUT);
             connection.setRequestProperty("Accept", "*/*");
             connection.setRequestProperty("user-agent", "JFluidDB");
             // Authorization header (if required)

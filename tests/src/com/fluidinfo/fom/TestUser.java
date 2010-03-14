@@ -52,18 +52,18 @@ public class TestUser extends User {
 	}
 	
 	@Test
-	public void testGetName() throws Exception {
+	public void testGetUserName() throws Exception {
 		User testUser = new User(this.fdb, "", this.fdb.getUsername());
 		testUser.getItem();
 		// get the test user's name from the credentials.json file.
-		assertEquals(TestUtils.getUserRealName(), testUser.getName());
+		assertEquals(this.fdb.getUsername(), testUser.getUsername());
 	}
 	
 	@Test
-    public void testGetUserName() throws FOMException, FluidException, IOException, JSONException {
+    public void testGetName() throws Exception {
         User testUser = new User(this.fdb, "", this.fdb.getUsername());
         testUser.getItem();
-        assertEquals(this.fdb.getUsername(), testUser.getUsername());
+        assertEquals(TestUtils.getUserRealName(), testUser.getName());
     }
 	
 	@Test
