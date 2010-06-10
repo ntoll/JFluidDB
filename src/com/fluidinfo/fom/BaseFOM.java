@@ -197,8 +197,7 @@ public abstract class BaseFOM implements FOMInterface {
 	
 	/**
 	 * Given a path and action will return the permissions associated with it. Will return null
-	 * if the logged in user is not authorized to view the permissions (they don't have the CONTROL
-	 * permission
+	 * if the logged in user is not authorized to view the permissions.
 	 * 
 	 * @param path e.g. /permissions/namespaces/foo
 	 * @param action e.g. create, update, delete, list, control etc...

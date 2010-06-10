@@ -82,7 +82,6 @@ public class Tag extends BaseFOM {
         SEE,
         CREATE, 
         READ,
-        UPDATE, 
         DELETE,
         CONTROL
     }

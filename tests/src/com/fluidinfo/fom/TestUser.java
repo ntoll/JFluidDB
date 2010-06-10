@@ -136,17 +136,17 @@ public class TestUser extends User {
         f.Login("test", "test");
         User u = f.getLoggedInUser();
         Permission p = new Permission(Policy.CLOSED, new String[]{"fluidDB", this.fdb.getUsername()});
-        u.setTagValuePolicy(Tag.TagValueActions.UPDATE, p);
+        u.setTagValuePolicy(Tag.TagValueActions.READ, p);
         // lets just check that went through ;-)
-        Permission checkP = u.getTagValuePolicy(Tag.TagValueActions.UPDATE);
+        Permission checkP = u.getTagValuePolicy(Tag.TagValueActions.READ);
         assertEquals(Policy.CLOSED, checkP.GetPolicy());
         String[] exceptions = checkP.GetExceptions();
         assertEquals(2, exceptions.length);
         assertEquals(true, (exceptions[0].equals(this.fdb.getUsername()) || exceptions[1].equals(this.fdb.getUsername())));
         // Right then, lets update the permission so we can observe a change with get
         p = new Permission(Policy.CLOSED, new String[]{this.fdb.getUsername()});
-        u.setTagValuePolicy(Tag.TagValueActions.UPDATE, p);
-        checkP = u.getTagValuePolicy(Tag.TagValueActions.UPDATE);
+        u.setTagValuePolicy(Tag.TagValueActions.READ, p);
+        checkP = u.getTagValuePolicy(Tag.TagValueActions.READ);
         assertEquals(Policy.CLOSED, checkP.GetPolicy());
         exceptions = checkP.GetExceptions();
         assertEquals(1, exceptions.length);

@@ -1,7 +1,7 @@
 package com.fluidinfo.utils;
 
 /**
- * Why no Base64 in core Java language. Here's a public domain version by
+ * Why no Base64 in core Java language? Here's a public domain version by
  * Rob Harder
  * 
  * Hacked to bare minimum by ntoll
